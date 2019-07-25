@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+  <title>IK2200 部署小记 | The Long and Winding Road not Taken &gt;v&lt;</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Project,">
+  
+
+  <meta name="description" content="写在前面  项目组 6人  题目： Development of a multi-threaded NAT (多线程NAT实现）  涉及知识：Liunx，C++，DPDK，FastClick  repo链接参见project页面  刚准备偷个懒把写在项目repo里的wiki直接复制粘贴进来，po到站子上才发现格式这么的丑啊hhhh。 其实自己并不是第一天用markdown写.md 呀，代码块什么的">
+<meta name="keywords" content="Project">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IK2200 部署小记">
+<meta property="og:url" content="http://www.14yhl9t.com/2018/11/09/IK2200/index.html">
+<meta property="og:site_name" content="The Long and Winding Road not Taken &gt;v&lt;">
+<meta property="og:description" content="写在前面  项目组 6人  题目： Development of a multi-threaded NAT (多线程NAT实现）  涉及知识：Liunx，C++，DPDK，FastClick  repo链接参见project页面  刚准备偷个懒把写在项目repo里的wiki直接复制粘贴进来，po到站子上才发现格式这么的丑啊hhhh。 其实自己并不是第一天用markdown写.md 呀，代码块什么的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.14yhl9t.com/2018/11/09/IK2200/IK2200/Capture2.png">
+<meta property="og:updated_time" content="2019-06-19T14:08:10.937Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IK2200 部署小记">
+<meta name="twitter:description" content="写在前面  项目组 6人  题目： Development of a multi-threaded NAT (多线程NAT实现）  涉及知识：Liunx，C++，DPDK，FastClick  repo链接参见project页面  刚准备偷个懒把写在项目repo里的wiki直接复制粘贴进来，po到站子上才发现格式这么的丑啊hhhh。 其实自己并不是第一天用markdown写.md 呀，代码块什么的">
+<meta name="twitter:image" content="http://www.14yhl9t.com/2018/11/09/IK2200/IK2200/Capture2.png">
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbeddx" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+
+  
+
+
+  
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+
+</head>
+</html>
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">Hi~</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">Hi~</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            Blog
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            Index
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            Tags
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            Link
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            About
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/atom.xml"
+            rel="noopener noreferrer"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            Find
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#写在前面"><span class="toc-text">写在前面</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1st-Period"><span class="toc-text">1st Period</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#拓扑图在这里"><span class="toc-text">拓扑图在这里</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#packet-generators-之旅"><span class="toc-text">packet generators 之旅</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2nd-Period（很久之后的一次总结…"><span class="toc-text">2nd Period（很久之后的一次总结…</span></a></li></ol></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-IK2200" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">IK2200 部署小记</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2018.11.09</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>Yuan Fan</span>
+        </span>
+      
+
+      
+  <span class="article-category">
+    <i class="icon-list"></i>
+    <a class="article-category-link" href="/categories/KTH/">KTH</a>
+  </span>
+
+
+
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><blockquote>
+<p> 项目组 6人</p>
+<p> 题目： Development of a multi-threaded NAT (多线程NAT实现）</p>
+<p> 涉及知识：Liunx，C++，DPDK，FastClick</p>
+<p> repo链接参见project页面</p>
+</blockquote>
+<p>刚准备偷个懒把写在项目repo里的wiki直接复制粘贴进来，po到站子上才发现格式这么的丑啊hhhh。</p>
+<p>其实自己并不是第一天用markdown写<em>.md</em> 呀，代码块什么的也不难分区，总之我还是老老实实的自己记录吧….</p>
+<h2 id="1st-Period"><a href="#1st-Period" class="headerlink" title="1st Period"></a>1st Period</h2><h3 id="拓扑图在这里"><a href="#拓扑图在这里" class="headerlink" title="拓扑图在这里"></a>拓扑图在这里</h3><p><img src="IK2200/Capture2.png" alt="topology"></p>
+<p>第一天拿到课题，还是觉得蛮不如意的。 组里大家都想做 Meeting strict latency SLOs in key-value stores， 但无奈种种原因分配到了NAT组。（写在period 2：这时候就发现人生还是公平的，TA非常优秀负责）</p>
+<p>所有的项目好像对我来说都是一点点熟悉下来的，在写project plan的时候脑子还真是一片空，一共就三个tasks的介绍翻来覆去看了不下10遍也没有确定的进行目标。 主任务在找到合适的packet generator上发以多速率的包来实现单核NAT机器的bottleneck performance。事实上也是在寻找合适的generator这个阶段耗时最久。就project plan而言，一切都很表面，翻来覆去无非就是几个阶段的big picture，技术层面只能在进展中积累实现，对于一个（近）完全依靠虚拟机的项目，风险规避有我头疼的哈哈哈，最终我的重点还是放在了测试阶段。（写在period 2: 一个发包器的bottleneck就把我打入谷底了）</p>
+<p>因为是研究生的学校项目，测试环境也就理所应当在KTH Server的KVM上。当然我也尝试过用本地虚拟机实现，效果必然不好，但也算把配置都保留了一份。</p>
+<blockquote>
+<ul>
+<li>本地VMware Fusion 搭建Ubuntu 16.04 两台</li>
+<li>分配3-4个处理器 内存量力而行</li>
+<li>安装VMware tools 在两个不同网段添加虚拟网卡</li>
+<li>更改虚拟网卡e1000为高速网卡vmxnet3</li>
+</ul>
+</blockquote>
+<h3 id="packet-generators-之旅"><a href="#packet-generators-之旅" class="headerlink" title="packet generators 之旅"></a>packet generators 之旅</h3><p>这里我们大概寻找了6种发包软件，现除了Cisco下的<a href="https://trex-tgn.cisco.com/trex/doc/trex_manual.html#_introduction" target="_blank" rel="noopener">T-rex</a>还在残喘着之外，其余的都已战败。</p>
+<p>我在组里接触了<a href="https://userguide.ostinato.org/Quickstart.html" target="_blank" rel="noopener">Ostinato</a> 和 <a href="https://github.com/Juniper/warp17" target="_blank" rel="noopener">Warp17</a>两种工具，操作感都较流畅。Ostinato失利于其并不支持DPDK，与开发人员联系后得到明年更新的消息😂（坐等更新）</p>
+<p>Warp17是一个横跨多层的stateful traffic generator，应用于我们的项目比较合适，命令行CLI易懂简单，test的gui写的比较完整，提供的信息较多但在实现latency的测量方面速率影响较大，这个软件用户群体不大，但好在google group回复小哥很用心，提供的帮助也很及时，总的来说测量基本的吞吐量还是可以的。</p>
+<hr>
+<p align="center">详细记录一下T-rex：
+
+
+</p><p>最开始使用T-rex的时候，为了图方便我几乎把所有的兴趣都放在了stateless GUI上，这里我就不贴图或者gif来展示了。</p>
+<p>跟所有发包工具的gui一样，操作简单，我们可以在连接到开启trex server的机器后，先以root/user身份来acquire特定的port用来发包/收包。 后续就是新建一个profile并且在其中添加配置特定stream包的收发地址、个数/pps、协议以及特定的port range(if necessary). 那么一个flow就已经设置好了。</p>
+<p>因为收集数据的类型要求，我们必须在设置的时候要开启他的latency模式并且给不同的flow辅以不同的PG-ID，这样就会使这个的GUI所展示的dashboard十分有说头。（但也只是在demo的时候好看。。。不方便整理数据</p>
+<p>进入dashboard，除了基本的收发速度，丢包率，比较亮眼的就是它自带的latency chart。这部分最多可以设置4个窗口实时展示发包进程，一般用来观察的无非是TX，RX，AVG latency，以及latency histogram。（预期效果是在NAT的进程下比直接forward要看到更明显增加趋势的latency）</p>
+<p>但是正如我所说，gui只能用做展示，真正需要很大量数据来画图时，这个就显得非常的鸡肋了。</p>
+<blockquote>
+<ul>
+<li>首先他虽然可以直接duplicate多条flow 但是需要人工手动更改port range 以及PG-ID号 以便正常计算latency  </li>
+<li>其次根据t-rex官方指导，利用gui生成的<em>.yaml</em>文件与我们通过console进行发包时写的脚本文件格式有很大出入（gui的脚本可以通过console进行发包）  </li>
+<li>最后就是如果我们希望flow数目增大到一定数量使用gui进行配置每条flow是极其不现实的办法</li>
+</ul>
+</blockquote>
+<p>最后我们还是回归了console本身，在研究发包脚本写法的过程中我们发现这个软件支持python脚本，经过改良，我们实现的版本代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> trex_stl_lib.api <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">STLS1</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Create flow stat stream of UDP packet.</span></span><br><span class="line"><span class="string">    Can specify using tunables following params:</span></span><br><span class="line"><span class="string">      Packet length (fsize)</span></span><br><span class="line"><span class="string">      Packet group id (pg_id)</span></span><br><span class="line"><span class="string">      Packet type(pkt_type)</span></span><br><span class="line"><span class="string">      Number of streams (num_streams)</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span> <span class="params">(self)</span>:</span></span><br><span class="line">        self.fsize = <span class="number">64</span></span><br><span class="line">        self.pg_id = <span class="number">0</span></span><br><span class="line">        self.num_streams = <span class="number">2</span></span><br><span class="line">        self.dport=<span class="number">12</span></span><br><span class="line">        self.sport=<span class="number">1025</span></span><br><span class="line">        self.pps=<span class="number">100</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_create_stream</span> <span class="params">(self)</span>:</span></span><br><span class="line">        size = self.fsize - <span class="number">4</span>; <span class="comment"># HW will add 4 bytes ethernet CRC</span></span><br><span class="line">        pkt0=[]</span><br><span class="line">        pkt1=[]</span><br><span class="line">        <span class="keyword">for</span> port_add <span class="keyword">in</span> range(<span class="number">0</span>,self.num_streams):</span><br><span class="line">          base_pkt0 = Ether(src = <span class="string">"52:54:00:ca:f0:a4"</span> , dst =<span class="string">"52:54:00:1e:4f:f3"</span>) / IP(src = <span class="string">"192.168.100.157"</span>, dst = <span class="string">"192.168.200.175"</span>) / TCP(dport = self.dport+port_add, sport = <span class="number">1025</span>)</span><br><span class="line">          base_pkt1 = Ether(src = <span class="string">"52:54:00:ca:f0:a4"</span> , dst =<span class="string">"52:54:00:1e:4f:f3"</span>) / IP(src = <span class="string">"192.168.100.157"</span>, dst = <span class="string">"192.168.200.175"</span>) / TCP(dport = <span class="number">12</span>, sport = self.dport+port_add)</span><br><span class="line">          pad0 = max(<span class="number">0</span>, size - len(base_pkt0)) * <span class="string">'x'</span></span><br><span class="line">          pad1 = max(<span class="number">0</span>, size - len(base_pkt1)) * <span class="string">'x'</span></span><br><span class="line">          pkt0.append(STLPktBuilder(pkt = base_pkt0/pad0))</span><br><span class="line">          pkt1.append(STLPktBuilder(pkt = base_pkt1/pad1))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        streams = []</span><br><span class="line">        streams.append(STLStream(packet = pkt0[<span class="number">0</span>], mode = STLTXCont(pps=<span class="number">1</span>), flow_stats = STLFlowLatencyStats(pg_id = self.pg_id)))</span><br><span class="line">        streams.append(STLStream(packet = pkt0[<span class="number">1</span>], mode = STLTXCont(pps=<span class="number">1</span>), flow_stats = STLFlowStats(pg_id = self.pg_id+<span class="number">1</span>)))</span><br><span class="line">        <span class="keyword">for</span> pkt_num <span class="keyword">in</span> range(<span class="number">0</span>, self.num_streams):</span><br><span class="line">            streams.append(STLStream(packet = pkt0[pkt_num], mode = STLTXCont(pps=self.pps)))</span><br><span class="line">            streams.append(STLStream(packet = pkt1[pkt_num], mode = STLTXCont(pps=self.pps)))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> streams</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_streams</span> <span class="params">(self, fsize = <span class="number">64</span>, pg_id = <span class="number">0</span>,  num_streams = <span class="number">1000</span> ,dport_num=<span class="number">12</span>,sport_num=<span class="number">1025</span>,pps_num=<span class="number">5000000</span>, **kwargs)</span>:</span></span><br><span class="line">        self.fsize = fsize</span><br><span class="line">        self.pg_id = pg_id</span><br><span class="line">        self.num_streams = num_streams</span><br><span class="line">        self.dport=dport_num</span><br><span class="line">        self.sport=sport_num</span><br><span class="line">        self.pps=pps_num/(<span class="number">2</span>*num_streams)</span><br><span class="line">        <span class="keyword">return</span> self._create_stream()</span><br><span class="line"></span><br><span class="line"><span class="comment"># dynamic load - used for trex console or simulator</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">register</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> STLS1()</span><br></pre></td></tr></table></figure>
+
+<p>至此，我们的generator勉勉强强能运行了，但是出乎意料的是multi-threaded NAT怎么也干不过单线程，每一次的测试都在求爷爷告奶奶中让人大失所望。</p>
+<h2 id="2nd-Period（很久之后的一次总结…"><a href="#2nd-Period（很久之后的一次总结…" class="headerlink" title="2nd Period（很久之后的一次总结…"></a>2nd Period（很久之后的一次总结…</h2><hr>
+<p>To be continued</p>
+<center> -学术7-y.
+
+
+</center>
+    
+  </div>
+
+</article>
+
+
+   
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="hide pull-left" href="/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2018/11/10/试图往主站添加音乐Try-1/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              Blog
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              Index
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              Tags
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              Link
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              About
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/atom.xml"
+              rel="noopener noreferrer"
+              target="_blank"
+              >
+              RSS
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              Find
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
