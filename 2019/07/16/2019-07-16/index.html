@@ -7,7 +7,7 @@
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="utf-8">
   
-  <title>Ethereum Smart Contract 1st try..&gt;&lt; | The Long and Winding Road not Taken &gt;v&lt;</title>
+  <title>Presentation Notes &gt;&lt; | The Long and Winding Road not Taken &gt;v&lt;</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -15,18 +15,18 @@
     <meta name="keywords" content="Project,">
   
 
-  <meta name="description" content="跳坑 -学术7-y.">
+  <meta name="description" content="Work with interledger sdk(ETH)Hi all, using interledger, we are supposed to link blockchains, traditional banking system and the moblie money system together. Here’s how this streaming technology actu">
 <meta name="keywords" content="Project">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Ethereum Smart Contract 1st try..&gt;&lt;">
+<meta property="og:title" content="Presentation Notes &gt;&lt;">
 <meta property="og:url" content="http://www.14yhl9t.com/2019/07/16/2019-07-16/index.html">
 <meta property="og:site_name" content="The Long and Winding Road not Taken &gt;v&lt;">
-<meta property="og:description" content="跳坑 -学术7-y.">
+<meta property="og:description" content="Work with interledger sdk(ETH)Hi all, using interledger, we are supposed to link blockchains, traditional banking system and the moblie money system together. Here’s how this streaming technology actu">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-07-16T12:45:21.136Z">
+<meta property="og:updated_time" content="2019-09-11T08:50:46.846Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Ethereum Smart Contract 1st try..&gt;&lt;">
-<meta name="twitter:description" content="跳坑 -学术7-y.">
+<meta name="twitter:title" content="Presentation Notes &gt;&lt;">
+<meta name="twitter:description" content="Work with interledger sdk(ETH)Hi all, using interledger, we are supposed to link blockchains, traditional banking system and the moblie money system together. Here’s how this streaming technology actu">
 
   
 
@@ -158,7 +158,7 @@
 
   <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#跳坑"><span class="toc-text">跳坑</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Work-with-interledger-sdk-ETH"><span class="toc-text">Work with interledger sdk(ETH)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-steps-process-of-how-the-streaming-payment-is-actually-performed"><span class="toc-text">3 steps process of how the streaming payment is actually performed</span></a></li></ol></li></ol></li></ol></li></ol>
   </div>
 
 
@@ -166,7 +166,7 @@
 <div class="content content-post CENTER">
    <article id="post-2019-07-16" class="article article-type-post" itemprop="blogPost">
   <header class="article-header">
-    <h1 class="post-title">Ethereum Smart Contract 1st try..&gt;&lt;</h1>
+    <h1 class="post-title">Presentation Notes &gt;&lt;</h1>
 
     <div class="article-meta">
       <span>
@@ -204,7 +204,46 @@
 
   <div class="article-content">
     
-      <h1 id="跳坑"><a href="#跳坑" class="headerlink" title="跳坑"></a>跳坑</h1><center> -学术7-y.</center>
+      <h1 id="Work-with-interledger-sdk-ETH"><a href="#Work-with-interledger-sdk-ETH" class="headerlink" title="Work with interledger sdk(ETH)"></a>Work with interledger sdk(ETH)</h1><p>Hi all, using interledger, we are supposed to link blockchains, traditional banking system and the moblie money system together.</p>
+<p>Here’s how this streaming technology actually works. The problem still up here is we are trying to transfer value from one ledger to the other. There’s a <em>litany</em>(一连串) of different solutions to solve this interoperability prolem. In the general case, we want to be able to do is <em>devise an algorithm</em> (创造一个算法) that could enable the transfer of value from one ledger to another without them knowing anything about each other, without us knowing anything about the facilitator of this transaction or the risk preferences of any of the parties involved.</p>
+<p>And to do this, we <em>leverage</em>(利用) the interledger protocol (ILP) with a setup that looks something like this in the figure.</p>
+<p>sender, receiver, and the connector who’s basically the facilitator of this transaction here, we’re doing it from ETH and BTS, but it could be any base ledger.</p>
+<p>What we do is we start off with an algorithm that sets the parameters for value transfer between these two different currencies.  base unit are drastically different XRP(10^-6^) ETH(10^-18^). <strong>So from the respective ETH, the base unit value from XRP is massive.</strong></p>
+<p>You have to negotiate this problem first, done automatically.</p>
+<blockquote>
+<p>Eth的最小单位是Wei, 一个Ether需要10^18^个wei来组成</p>
+<p>XRP的最小单位是drop, 一个XRP需要10^6^个drops来组成</p>
+<p>BTS的精度是5，一个BTS需要10^5^个base unit</p>
+</blockquote>
+<p>Then exchange rate that calculated, as long as the sender agrees with the same exchange rate, we are off to the payments.</p>
+<hr>
+<h4 id="3-steps-process-of-how-the-streaming-payment-is-actually-performed"><a href="#3-steps-process-of-how-the-streaming-payment-is-actually-performed" class="headerlink" title="3 steps process of how the streaming payment is actually performed"></a>3 steps process of how the streaming payment is actually performed</h4><ol>
+<li><p>Negotiation of packet size/ exchange rate/ slippage b/w these two unknown ledgers, with the ability to intelligently monitor this as time goes on. </p>
+</li>
+<li><p>Synchronous process where the streaming actually begins. We can see it in the console log (between connector and receiver), what stream does it that it sends this max packet size from the connector to the receiver. and this acts as a mechanism to draw up the balance held by the connector which means as time goes on, the connector is owing the receiver more and more money.</p>
+<blockquote>
+<p>收款方不会让connector欠他们无限的（infinite）的款项，但是connector自己是不知道这个ultimate value 是多少</p>
+</blockquote>
+<blockquote>
+<p>stream通过最终hitting a wall with its max packets size,并且得到一个max packet size error</p>
+</blockquote>
+<blockquote>
+<p>但是stream并不停止， 它会渐渐的reduce the packet size down直到到一个合适的amount of credit extended by the reciver.</p>
+</blockquote>
+</li>
+<li><p>Parallel process of drawing the account down via payment channel updates, and these 2 independent processes work in <em>tandem</em>(串联) until the containment is complete.</p>
+<blockquote>
+<ol>
+<li>streaming process increases the account balance from connector to receiver,</li>
+<li>payment channel updates act to draw down the balance. (requires a cryptographic signature)</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<p>   <strong>==Meaningful point==</strong></p>
+<p>   Integrate more ledgers into the system with the ultimate goal of enabling a user to make it just in time payment from one currency to the other.</p>
+<p>   Imagine how a user could hold one specific cryptocurreny and access a service built on top of ethereum such as the smart contract, and be able to access that down to an <em>arbitrarily</em>(随意的) small value.</p>
+<center> -学术7-y.</center>
     
   </div>
 
